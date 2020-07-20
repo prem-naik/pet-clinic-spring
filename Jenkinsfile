@@ -28,7 +28,6 @@ pipeline {
 			steps{
 				sh '''
 					git clone 'https://github.com/spring-projects/spring-petclinic'
-					cp Dockerfile deploy_app.yml hosts spring-petclinic
 					cd spring-petclinic
 					mvn clean install
 				'''
