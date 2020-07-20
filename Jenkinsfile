@@ -8,6 +8,11 @@ pipeline {
 		DOCKER_USERNAME = "${DOCKERCRED_USR}"
 		DOCKER_PASSWORD = "${DOCKERCRED_PSW}"
     }
+	
+	parameters {
+        string(defaultValue: "", description: 'DEPLOY_TARGET', name: 'DEPLOY_TARGET')
+    }
+	
 	stages {
 		stage ('Initialize') {
             steps {
@@ -24,11 +29,12 @@ pipeline {
 			}
 		}
 		
-		stage ('MAven Build'){
+		stage ('Maven Build'){
 			steps{
 				sh '''
+					echo "Maven Build"
 					git clone 'https://github.com/spring-projects/spring-petclinic'
-					cp Dockerfile spring-petclinic
+					cp Dockerfile hosts deploy_app.yml spring-petclinic
 					cd spring-petclinic
 					mvn clean install
 				'''
@@ -46,6 +52,16 @@ pipeline {
 				'''
 			}
 		}
+		
+		stage ('Deploy App') {
+            steps {
+                sh '''
+					export ANSIBLE_HOST_KEY_CHECKING=False
+					sed -i "s|ip_address|${DEPLOY_TARGET}|g" ./hosts
+                    ansible-playbook -i ./hosts ./deploy_app.yml 
+                '''
+            }
+        }
 	
 	}
 	

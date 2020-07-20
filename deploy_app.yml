@@ -1,0 +1,12 @@
+---
+- hosts: pet-clinic
+  remote_user: ec2-user
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Run the container
+      docker_container:
+        name: petclinic
+        image: premnaik/spring-petclinic:latest
+        published_ports: 8080:8080
+        state: started
